@@ -5,8 +5,10 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/spf13/viper"
 	"github.com/theckman/yacspin"
+	"io/fs"
 	"log"
 	"os"
+	"path/filepath"
 	"sort"
 )
 
@@ -53,8 +55,7 @@ func init() {
 		name:     viper.GetString("remoteDb.name"),
 	}
 
-	pathToRestore = viper.GetString("pathToRestore")
-	pathToDump = viper.GetString("pathToDump")
+	findExecutables()
 
 	shouldRestore = viper.GetBool("shouldRestore")
 	shouldBackup = viper.GetBool("shouldBackup")
@@ -73,15 +74,35 @@ func main() {
 
 	if shouldRestore {
 		if restoreFile == "" {
-			fs, err := os.ReadDir("backups/")
+			files, err := os.ReadDir("backups/")
 			if err != nil {
 				log.Fatal(err)
 			}
-			sort.Slice(fs, func(i, j int) bool {
-				return fs[i].Name() > fs[j].Name()
+			sort.Slice(files, func(i, j int) bool {
+				return files[i].Name() > files[j].Name()
 			})
-			restoreFile = fmt.Sprintf("backups/%s", fs[0].Name())
+			restoreFile = fmt.Sprintf("backups/%s", files[0].Name())
 		}
 		restore(restoreFile)
+	}
+}
+
+func findExecutables() {
+	err := filepath.WalkDir(viper.GetString("pathToExecutables"), func(path string, d fs.DirEntry, err error) error {
+		switch d.Name() {
+		case "pg_dump":
+			pathToDump = filepath.Join(viper.GetString("pathToExecutables"), path, "pg_dump")
+		case "pg_restore":
+			pathToRestore = filepath.Join(viper.GetString("pathToExecutables"), path, "pg_dump")
+		default:
+
+		}
+
+		return nil
+	})
+
+	if err != nil || pathToRestore == "" || pathToDump == "" {
+		log.Println("Failed to find the postgres executables (pg_dump and/or pg_restore)")
+		log.Fatal(err)
 	}
 }
