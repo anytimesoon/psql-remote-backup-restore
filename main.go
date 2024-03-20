@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	_ "github.com/lib/pq"
 	"github.com/spf13/viper"
 	"github.com/theckman/yacspin"
@@ -18,9 +17,13 @@ var (
 
 	pathToDump    string
 	pathToRestore string
+	pathToBackups string
 
-	shouldBackup  bool
-	shouldRestore bool
+	shouldBackup  = true
+	shouldRestore = true
+
+	backupOptions  []string
+	restoreOptions []string
 
 	spinner *yacspin.Spinner
 
@@ -56,6 +59,13 @@ func init() {
 	}
 
 	findExecutables()
+	pathToBackups = viper.GetString("directories.backups")
+	if pathToBackups[len(pathToBackups)-1:len(pathToBackups)] != "/" {
+		pathToBackups = pathToBackups + "/"
+	}
+
+	backupOptions = viper.GetStringSlice("backupOptions")
+	restoreOptions = viper.GetStringSlice("restoreOptions")
 
 	shouldRestore = viper.GetBool("shouldRestore")
 	shouldBackup = viper.GetBool("shouldBackup")
@@ -74,26 +84,28 @@ func main() {
 
 	if shouldRestore {
 		if restoreFile == "" {
-			files, err := os.ReadDir("backups/")
+			log.Println("No backup file explicitly given, searching for most recent backup")
+			files, err := os.ReadDir(pathToBackups)
 			if err != nil {
 				log.Fatal(err)
 			}
 			sort.Slice(files, func(i, j int) bool {
 				return files[i].Name() > files[j].Name()
 			})
-			restoreFile = fmt.Sprintf("backups/%s", files[0].Name())
+			restoreFile = pathToBackups + files[0].Name()
+			log.Printf("Latest backup found was: %s", files[0].Name())
 		}
 		restore(restoreFile)
 	}
 }
 
 func findExecutables() {
-	err := filepath.WalkDir(viper.GetString("pathToExecutables"), func(path string, d fs.DirEntry, err error) error {
+	err := filepath.WalkDir(viper.GetString("directories.executables"), func(path string, d fs.DirEntry, err error) error {
 		switch d.Name() {
 		case "pg_dump":
-			pathToDump = filepath.Join(viper.GetString("pathToExecutables"), path, "pg_dump")
+			pathToDump = filepath.Join(viper.GetString("directories.executables"), path, "pg_dump")
 		case "pg_restore":
-			pathToRestore = filepath.Join(viper.GetString("pathToExecutables"), path, "pg_dump")
+			pathToRestore = filepath.Join(viper.GetString("directories.executables"), path, "pg_dump")
 		default:
 
 		}

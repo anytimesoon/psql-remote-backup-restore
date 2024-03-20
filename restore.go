@@ -48,11 +48,7 @@ func restore(restoreFile string) {
 	}
 
 	restore.Role = local.user
-	restore.Options = []string{
-		"--no-password",
-		"--no-owner",
-		"--no-privileges",
-	}
+	restore.Options = restoreOptions
 
 	log.Println("Starting restore")
 	err = spinner.Start()

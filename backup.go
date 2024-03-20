@@ -21,11 +21,7 @@ func backup() string {
 		log.Fatal(err)
 	}
 
-	dump.Options = []string{
-		"--no-password",
-		"--blobs",
-		"--no-owner",
-		"--no-privileges"}
+	dump.Options = backupOptions
 	dump.SetFileName("backups/" + time.Now().Format("20060102_1504") + "_backup" + ".sql")
 
 	err = os.MkdirAll("backups", 0755)
