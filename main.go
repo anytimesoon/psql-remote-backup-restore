@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	_ "github.com/lib/pq"
 	"github.com/spf13/viper"
 	"github.com/theckman/yacspin"
@@ -19,8 +20,8 @@ var (
 	pathToRestore string
 	pathToBackups string
 
-	shouldBackup  = true
-	shouldRestore = true
+	shouldBackup  bool
+	shouldRestore bool
 
 	backupOptions  []string
 	restoreOptions []string
@@ -67,8 +68,21 @@ func init() {
 	backupOptions = viper.GetStringSlice("backupOptions")
 	restoreOptions = viper.GetStringSlice("restoreOptions")
 
+	viper.SetDefault("shouldRestore", true)
 	shouldRestore = viper.GetBool("shouldRestore")
+	viper.SetDefault("shouldBackup", true)
 	shouldBackup = viper.GetBool("shouldBackup")
+
+	flag.Parse()
+	args := flag.Args()
+	for _, arg := range args {
+		switch arg {
+		case "r", "restore":
+			shouldBackup = false
+		case "b", "backup":
+			shouldRestore = false
+		}
+	}
 
 	spinner, err = yacspin.New(cfg)
 	if err != nil {
