@@ -1,0 +1,36 @@
+# Configure your local db
+localDb:
+  host: "127.0.0.1"
+  port: 5432
+  user: "localDbUser"
+  password: "localDbPassword"
+  name: "localDbName"
+
+# Configure your remote db
+remoteDb:
+  host: "remote.host.com"
+  port: 5432
+  user: "remoteDbUser"
+  password: "remoteDbPassword"
+  name: "remoteDbName"
+
+
+directories:
+  # Define the location of the pg_dump and pg_restore executables
+  # Giving the parent directory will allow the util to search and find the desired files
+  executables: "/usr/lib/postgresql"
+  # Configure where you would like the back up files to be stored
+  backups: "backups/"
+
+# Options to run with your restore command
+restoreOptions:
+  - "--no-password"
+  - "--no-owner"
+  - "--no-privileges"
+
+# Options to run with your backup command
+backupOptions:
+  - "--no-password"
+  - "--blobs"
+  - "--no-owner"
+  - "--no-privileges"
