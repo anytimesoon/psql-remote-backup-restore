@@ -34,3 +34,9 @@ backupOptions:
   - "--blobs"
   - "--no-owner"
   - "--no-privileges"
+
+# Only run the restore functions (optional, default True)
+shouldRestore: True
+
+# Only run the backup functions (optional, default True)
+shouldBackup: True
