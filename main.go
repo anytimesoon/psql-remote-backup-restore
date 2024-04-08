@@ -117,9 +117,9 @@ func findExecutables() {
 	err := filepath.WalkDir(viper.GetString("directories.executables"), func(path string, d fs.DirEntry, err error) error {
 		switch d.Name() {
 		case "pg_dump":
-			pathToDump = filepath.Join(viper.GetString("directories.executables"), path)
+			pathToDump = path
 		case "pg_restore":
-			pathToRestore = filepath.Join(viper.GetString("directories.executables"), path)
+			pathToRestore = path
 		default:
 
 		}
