@@ -39,7 +39,7 @@ func backup() string {
 	if dumpExec.Error != nil {
 		log.Println("Failed to dump")
 		log.Println(dumpExec.Error.Err)
-		log.Println(dumpExec.Output)
+		log.Fatalln(dumpExec.Output)
 
 	} else {
 		log.Println(dumpExec.Output)
