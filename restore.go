@@ -5,6 +5,7 @@ import (
 	"fmt"
 	pg "github.com/habx/pg-commands"
 	"log"
+	"net/url"
 )
 
 func restore(restoreFile string) {
@@ -17,7 +18,7 @@ func restore(restoreFile string) {
 	}
 
 	log.Println("Preparing for dropping of local schema")
-	connString := fmt.Sprintf("postgres://%s:%s@%s:%d/sparta_database?sslmode=disable", localDb.Username, localDb.Password, localDb.Host, localDb.Port)
+	connString := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable", localDb.Username, url.QueryEscape(localDb.Password), localDb.Host, localDb.Port, localDb.DB)
 	db, err := sql.Open("postgres", connString)
 	if err != nil {
 		log.Println("Failed to prepare for drop")
