@@ -8,6 +8,7 @@ import (
 	"io/fs"
 	"log"
 	"os"
+	"path"
 	"path/filepath"
 	"sort"
 )
@@ -32,12 +33,22 @@ var (
 )
 
 func init() {
-	viper.SetConfigName("config")
-	viper.AddConfigPath(".")
-	err := viper.ReadInConfig()
+	configName := flag.String("config", "main", "custom config name")
+	flag.Parse()
+	ex, err := os.Executable()
+	if err != nil {
+		log.Fatal(err)
+	}
+	dir := path.Dir(ex)
+	log.Print(dir)
+
+	viper.SetConfigName(*configName)
+	viper.AddConfigPath(dir)
+	viper.AddConfigPath("./")
+	err = viper.ReadInConfig()
 	if err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			log.Fatalln("Could not find config file. Please make sure it is in the same directory as the executable and named config.yaml.", err)
+			log.Fatalf("Could not find config file. Please make sure it is in the same directory as the executable and named %s.yaml.\n %s", *configName, err)
 		} else {
 			log.Fatalln("Failed to read config file.", err)
 		}
@@ -61,19 +72,21 @@ func init() {
 
 	findExecutables()
 	pathToBackups = viper.GetString("directories.backups")
-	if pathToBackups[len(pathToBackups)-1:len(pathToBackups)] != "/" {
+	if pathToBackups == "" {
+		pathToBackups = dir + "backups/"
+	}
+	if pathToBackups[len(pathToBackups)-1:] != "/" {
 		pathToBackups = pathToBackups + "/"
 	}
 
 	backupOptions = viper.GetStringSlice("backupOptions")
 	restoreOptions = viper.GetStringSlice("restoreOptions")
 
-	viper.SetDefault("shouldRestore", true)
+	viper.SetDefault("shouldRestore", false)
 	shouldRestore = viper.GetBool("shouldRestore")
 	viper.SetDefault("shouldBackup", true)
 	shouldBackup = viper.GetBool("shouldBackup")
 
-	flag.Parse()
 	args := flag.Args()
 	for _, arg := range args {
 		switch arg {
