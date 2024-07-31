@@ -18,6 +18,14 @@ It is recommended to change the name of the executable to allow for easier use l
 mv psqlbu-v0.x.0-[darwin/linux]-[amd64/arm64] psqlbu
 ```
 
+#### Mac only
+The executable is uncertified, so you will not be able to run it on mac without admin privileges.
+To set the tool in quarantine and then adding the executable to your trusted apps, you will need to run the following
+```
+xattr -dr com.apple.quarantine psqlbu
+spctl --add psqlbu
+```
+
 Add the directory to your $PATH to allow the command to be run from anywhere.
 
 ## Configuration
