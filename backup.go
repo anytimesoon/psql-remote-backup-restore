@@ -22,9 +22,9 @@ func backup() string {
 	}
 
 	dump.Options = backupOptions
-	dump.SetFileName("backups/" + time.Now().Format("20060102_1504") + "_backup" + ".sql")
+	dump.SetFileName(pathToBackups + time.Now().Format("20060102_1504") + "_backup" + ".sql")
 
-	err = os.MkdirAll("backups", 0755)
+	err = os.MkdirAll(pathToBackups, 0755)
 	if err != nil {
 		log.Println("Failed to create backups folder")
 		log.Fatal(err)
