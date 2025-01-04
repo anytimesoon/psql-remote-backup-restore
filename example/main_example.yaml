@@ -41,3 +41,8 @@ shouldRestore: True
 
 # Only run the backup functions (optional, default True)
 shouldBackup: True
+
+# Clean up will delete old backup files (optional, default True)
+shouldCleanUp: True
+# Maximum number of backups (optional, default 10)
+maxBackups: 10

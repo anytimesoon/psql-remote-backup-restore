@@ -27,6 +27,9 @@ var (
 	backupOptions  []string
 	restoreOptions []string
 
+	shouldCleanUp bool
+	maxBackups    int
+
 	spinner *yacspin.Spinner
 
 	restoreFile string
@@ -83,8 +86,11 @@ func init() {
 	restoreOptions = viper.GetStringSlice("restoreOptions")
 
 	viper.SetDefault("shouldRestore", false)
-	shouldRestore = viper.GetBool("shouldRestore")
 	viper.SetDefault("shouldBackup", true)
+	viper.SetDefault("shouldCleanUp", true)
+	viper.SetDefault("maxBackups", 10)
+
+	shouldRestore = viper.GetBool("shouldRestore")
 	shouldBackup = viper.GetBool("shouldBackup")
 
 	args := flag.Args()
@@ -96,6 +102,9 @@ func init() {
 			shouldRestore = false
 		}
 	}
+
+	shouldCleanUp = viper.GetBool("shouldCleanUp")
+	maxBackups = viper.GetInt("maxBackups")
 
 	spinner, err = yacspin.New(cfg)
 	if err != nil {
@@ -123,6 +132,10 @@ func main() {
 			log.Printf("Latest backup found was: %s", files[0].Name())
 		}
 		restore(restoreFile)
+	}
+
+	if shouldCleanUp {
+		cleanUp()
 	}
 }
 
